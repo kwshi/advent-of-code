@@ -1,0 +1,5 @@
+(executable
+ (public_name ks-aoc)
+ (name main)
+ (libraries ks_aoc cmdliner containers year2015)
+)
