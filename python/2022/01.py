@@ -1,14 +1,15 @@
 # pyright: strict
 from .. import ks
+import typing
 
 
-def parse():
-    return [sum(map(int, chunk)) for chunk in ks.parse.chunks()]
+def parse(stdin: typing.TextIO):
+    return [sum(map(int, chunk)) for chunk in ks.parse.chunks(stdin)]
 
 
-def part1():
-    return max(parse())
+def part1(stdin: typing.TextIO):
+    return max(parse(stdin))
 
 
-def part2():
-    return sum(sorted(parse())[-3:])
+def part2(stdin: typing.TextIO):
+    return sum(sorted(parse(stdin))[-3:])
