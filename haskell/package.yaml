@@ -1,0 +1,10 @@
+name: "ks-aoc"
+version: "0.0.0"
+
+dependencies:
+  - "base"
+  - "containers"
+
+executable:
+  main: "Main.hs"
+  source-dirs: "."
