@@ -1,0 +1,6 @@
+[submodule "archive-old/2020"]
+	path = archive-old/2020
+	url = https://github.com/kwshi/aoc-2020
+[submodule "archive-old/2021"]
+	path = archive-old/2021
+	url = https://github.com/kwshi/aoc-2021
