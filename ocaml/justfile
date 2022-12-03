@@ -1,4 +1,0 @@
-set positional-arguments
-
-main *args:
-  dune exec -- ks-aoc "$@"
