@@ -88,7 +88,7 @@ if __name__ == "__main__":
                 if not (isinstance(result, int) or isinstance(result, str)):
                     print(
                         f"{args.year} day {args.day} solution part {args.part} result is neither string nor integer:"
-                        f"  {result!repr}"
+                        f"  {result!r}"
                     )
                     sys.exit(3)
 
