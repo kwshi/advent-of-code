@@ -1,39 +1,22 @@
 # pyright: strict
 
 import typing
-
 import re
-import dataclasses
 
-re_int = re.compile(r"[+-]?\d+")
-re_uint = re.compile(r"\d+")
-re_word = re.compile(r"\S+")
-
-
-@dataclasses.dataclass
-class TermLiteral:
-    s: str
+# patterns mostly taken from <https://docs.python.org/3/library/re.html#simulating-scanf>
+regexps: dict[str, tuple[typing.Callable[[str], typing.Any], re.Pattern[str]]] = {
+    "d": (int, re.compile(r"[+-]?\d+")),
+    "u": (int, re.compile(r"\d+")),
+    "s": (str, re.compile(r"\S+")),
+    "f": (float, re.compile(r"[+-]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?")),
+}
 
 
-@dataclasses.dataclass
-class TermInt:
-    pass
-
-
-@dataclasses.dataclass
-class TermIntUnsigned:
-    pass
-
-
-@dataclasses.dataclass
-class TermWord:
-    pass
-
-
-Term = TermLiteral | TermInt | TermIntUnsigned | TermWord
-
-
-def parse(pat: str) -> typing.Iterator[Term]:
+def parse(
+    pat: str,
+) -> typing.Iterator[
+    str | tuple[str, typing.Callable[[str], typing.Any], re.Pattern[str]]
+]:
     buf: list[str] = []
 
     escape = False
@@ -45,21 +28,13 @@ def parse(pat: str) -> typing.Iterator[Term]:
                 continue
 
             if buf:
-                yield TermLiteral("".join(buf))
+                yield "".join(buf)
                 buf = []
 
-            match c:
-                case "d":
-                    yield TermInt()
+            if c not in regexps:
+                raise ValueError(f"invalid escape code {c!r} in pattern {pat!r}")
 
-                case "u":
-                    yield TermIntUnsigned()
-
-                case "s":
-                    yield TermWord()
-
-                case _:
-                    raise ValueError(f"invalid escape code {c!r} in pattern {pat!r}")
+            yield (c, *regexps[c])
 
             continue
 
@@ -70,7 +45,7 @@ def parse(pat: str) -> typing.Iterator[Term]:
         buf.append(c)
 
     if buf:
-        yield TermLiteral("".join(buf))
+        yield "".join(buf)
 
 
 def compile(pat: str) -> typing.Callable[[str], typing.Iterator[typing.Any]]:
@@ -80,32 +55,19 @@ def compile(pat: str) -> typing.Callable[[str], typing.Iterator[typing.Any]]:
         pos = 0
         for term in terms:
             match term:
+                case (c, conv, r):
+                    m = r.match(input, pos)
+                    assert (
+                        m
+                    ), f"failed to match token %{c} at position {pos} in {input!r}"
+                    s = m.group(0)
+                    pos += len(s)
+                    yield conv(s)
 
-                case TermLiteral(lit):
+                case s:
                     assert input.startswith(
-                        lit, pos
-                    ), f"failed to match literal {lit!r} at position {pos} in {input!r}"
-                    pos += len(lit)
-
-                case TermInt():
-                    m = re_int.match(input, pos)
-                    assert m, f"failed to match int at position {pos} in {input!r}"
-                    s = m.group(0)
+                        s, pos
+                    ), f"failed to match literal {s!r} at position {pos} in {input!r}"
                     pos += len(s)
-                    yield int(s)
-
-                case TermIntUnsigned():
-                    m = re_uint.match(input, pos)
-                    assert m, f"failed to match uint at position {pos} in {input!r}"
-                    s = m.group(0)
-                    pos += len(s)
-                    yield int(s)
-
-                case TermWord():
-                    m = re_word.match(input, pos)
-                    assert m, f"failed to match word at position {pos} in {input!r}"
-                    s = m.group(0)
-                    pos += len(s)
-                    yield s
 
     return run
