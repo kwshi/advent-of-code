@@ -1,3 +1,5 @@
+# pyright: strict
+
 from .. import ks
 import typing
 
@@ -14,13 +16,9 @@ def parse(stdin: typing.TextIO):
         yield a, b, c, d
 
 
-@ks.func.sumify
 def part1(stdin: typing.TextIO):
-    for a, b, c, d in parse(stdin):
-        yield a <= c <= d <= b or c <= a <= b <= d
+    return sum(a <= c <= d <= b or c <= a <= b <= d for a, b, c, d in parse(stdin))
 
 
-@ks.func.sumify
 def part2(stdin: typing.TextIO):
-    for a, b, c, d in parse(stdin):
-        yield a <= d and b >= c
+    return sum(a <= d and b >= c for a, b, c, d in parse(stdin))
