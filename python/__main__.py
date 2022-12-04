@@ -19,20 +19,38 @@ if __name__ == "__main__":
     parser.add_argument("day", metavar="day", type=int, choices=[*range(1, 25 + 1)])
     parser.add_argument("part", metavar="part", type=int, choices=[1, 2])
 
+    parser.add_argument(
+        "-c",
+        "--cache",
+        type=str,
+        help="path to downloaded (cached) AoC input files",
+        required=True,
+    )
+
     auto_group = parser.add_mutually_exclusive_group()
     auto_group.add_argument(
         "-f",
         "--fetch",
         dest="auto",
         action="store_const",
-        const=False,
+        const="fetch",
+        help="run on official input fetched from AoC website",
     )
     auto_group.add_argument(
         "-F",
         "--fetch-and-submit",
         dest="auto",
         action="store_const",
-        const=True,
+        const="submit",
+        help="run on official input fetched from AoC website & submit as final answer",
+    )
+    auto_group.add_argument(
+        "-t",
+        "--test",
+        dest="auto",
+        action="store_const",
+        const="test",
+        help="try to extract & test on sample input from problem statement",
     )
 
     args = parser.parse_args()
@@ -60,10 +78,27 @@ if __name__ == "__main__":
         print(part(sys.stdin))
     else:
         session = _aoc.get_session()
+        client = _aoc.Client(session, args.cache)
 
-        with _aoc.fetch_input(session, args.year, args.day) as f:
-            result = part(f)
+        match args.auto:
+            case "fetch" | "submit":
+                with client.fetch_input(args.year, args.day) as f:
+                    result = part(f)
 
-        print(result)
-        if args.auto:
-            _aoc.submit_answer(session, args.year, args.day, args.part, str(result))
+                if not (isinstance(result, int) or isinstance(result, str)):
+                    print(
+                        f"{args.year} day {args.day} solution part {args.part} result is neither string nor integer:"
+                        f"  {result!repr}"
+                    )
+                    sys.exit(3)
+
+                print(result)
+
+                if args.auto == "submit":
+                    client.submit_answer(args.year, args.day, args.part, str(result))
+
+            case "test":
+                pass
+
+            case _:
+                pass
