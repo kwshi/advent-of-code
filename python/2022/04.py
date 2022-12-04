@@ -3,17 +3,9 @@
 from .. import ks
 import typing
 
-import re
-
-re_line = re.compile(r"(\d+)-(\d+),(\d+)-(\d+)")
-
 
 def parse(stdin: typing.TextIO):
-    for line in ks.parse.lines(stdin):
-        m = re_line.fullmatch(line)
-        assert m is not None
-        a, b, c, d = map(int, m.groups())
-        yield a, b, c, d
+    return ks.parse.lines_pattern(stdin, "%u-%u,%u-%u")
 
 
 def part1(stdin: typing.TextIO):
