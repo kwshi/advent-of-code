@@ -1,9 +1,15 @@
 # pyright: strict
 import typing
 
+from . import pattern
+
 
 def line(stdin: typing.TextIO) -> str:
     return stdin.readline().rstrip("\r\n")
+
+
+def line_pattern(stdin: typing.TextIO, p: str) -> typing.Iterator[typing.Any]:
+    return pattern.compile(p)(line(stdin))
 
 
 def lines(stdin: typing.TextIO) -> typing.Iterator[str]:
@@ -12,6 +18,15 @@ def lines(stdin: typing.TextIO) -> typing.Iterator[str]:
     """
     for line in stdin:
         yield line.rstrip("\r\n")
+
+
+def lines_pattern(
+    stdin: typing.TextIO, p: str
+) -> typing.Iterator[typing.Iterator[typing.Any]]:
+    """
+    parse input line-by-line. returns a generator that yields individual lines.
+    """
+    return map(pattern.compile(p), lines(stdin))
 
 
 def chunks(stdin: typing.TextIO) -> typing.Iterator[list[str]]:
