@@ -40,3 +40,7 @@ def chunks(stdin: typing.TextIO) -> typing.Iterator[list[str]]:
             chunk = []
     if chunk:
         yield chunk
+
+
+def scanf(pat: str, s: str) -> typing.Iterator[typing.Any]:
+    return pattern.compile(pat)(s)

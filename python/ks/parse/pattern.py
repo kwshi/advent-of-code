@@ -64,10 +64,10 @@ def compile(pat: str) -> typing.Callable[[str], typing.Iterator[typing.Any]]:
                     pos += len(s)
                     yield conv(s)
 
-                case s:
+                case str():
                     assert input.startswith(
-                        s, pos
-                    ), f"failed to match literal {s!r} at position {pos} in {input!r}"
-                    pos += len(s)
+                        term, pos
+                    ), f"failed to match literal {term!r} at position {pos} in {input!r}"
+                    pos += len(term)
 
     return run

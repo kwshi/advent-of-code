@@ -9,7 +9,7 @@ A = typing.TypeVar("A")
 
 
 def grouper(
-    iterable: typing.Iterator[A],
+    iterable: typing.Iterable[A],
     n: int,
     *,
     incomplete: typing.Literal["fill", "strict", "ignore"] = "fill",
