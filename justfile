@@ -2,7 +2,9 @@ set dotenv-load
 set positional-arguments
 
 fetch year day:
-  curl -fsS -b "session=$AOC_SESSION" \
+  curl -fsS \
+    -A 'github.com/kwshi/advent-of-code by shi.kye@gmail.com / justfile' \
+    -b "session=$AOC_SESSION" \
     "https://adventofcode.com/$1/day/$(printf '%d' "$2")/input"
 
 download year day:
@@ -19,19 +21,28 @@ ocaml *args:
   ./ocaml/_build/default/main.exe "$@"
 
 python *args:
-  AOC_INPUT_CACHE='./input' python -m 'python' "$@"
+  python -m 'python' -c './input' "$@"
 
-new-python year day:
+edit-python year day:
+  #!/bin/bash
   mkdir -p "python/$1"
-  file="python/$1/$(printf '%02d' "$2").py" \
-    && cp 'python/_template.py' "$file" \
-    && nvim "$file"
+  file="python/$1/$(printf '%02d' "$2").py"
+  if [[ -e "$file" ]]; then
+    echo $'\e[93;1m'"file ${file@Q} already exists; opening."$'\e[m'
+  else
+    echo $'\e[93;1m'"file ${file@Q} doesn't exist; initializing from template."$'\e[m'
+    cp 'python/_template.py' "$file"
+  fi
+  nvim "$file"
 
 submit year day part:
   #!/bin/bash
   set -euo pipefail
   read -r answer \
-    && curl -fsS -b "session=$AOC_SESSION" \
-      -d "level=$(printf '%d' "$3")" -d "answer=$answer" \
+    && curl -fsS
+      -A 'github.com/kwshi/advent-of-code by shi.kye@gmail.com / justfile' \
+      -b "session=$AOC_SESSION" \
+      -d "level=$(printf '%d' "$3")" \
+      -d "answer=$answer" \
       "https://adventofcode.com/$1/day/$(printf '%d' "$2")/answer" \
     | pup -p 'article text{}' # btw: https://github.com/ericchiang/pup/issues/93
