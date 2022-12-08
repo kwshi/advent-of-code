@@ -30,3 +30,18 @@ def setify(f: Fn[P, typing.Iterable[A]]) -> Fn[P, set[A]]:
 
 def dictify(f: Fn[P, typing.Iterable[tuple[A, B]]]) -> Fn[P, dict[A, B]]:
     return postprocess(dict, f)
+
+
+def maxify(f: Fn[P, typing.Iterable[int]]) -> Fn[P, int]:
+    return postprocess(max, f)
+
+
+def minify(f: Fn[P, typing.Iterable[int]]) -> Fn[P, int]:
+    return postprocess(min, f)
+
+
+def count_unique(f: Fn[P, typing.Iterable[object]]) -> Fn[P, int]:
+    def wrapped(*args: P.args, **kwargs: P.kwargs):
+        return len({*f(*args, **kwargs)})
+
+    return wrapped
