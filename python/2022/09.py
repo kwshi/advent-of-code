@@ -1,72 +1,46 @@
+# pyright: strict
 from .. import ks
 import typing
 
-import math
-import string
-import re
-import itertools as it
-import bisect as bs
-import functools as ft
-import collections as co
-import operator as op
-import dataclasses as dc
-import heapq as hq
-import pprint as pp
-import graphlib as gl
+offset: dict[str, tuple[int, int]] = {
+    "L": (-1, 0),
+    "R": (1, 0),
+    "U": (0, 1),
+    "D": (0, -1),
+}
 
 
-def parse(stdin: typing.TextIO):
-    for line in ks.parse.lines(stdin):
-        a, b = line.split()
-        yield a, int(b)
+def parse(stdin: typing.TextIO) -> typing.Iterator[tuple[tuple[int, int], int]]:
+    for d, n in ks.parse.lines_pattern(stdin, "%s %d"):
+        yield offset[d], n
 
 
-offset = {"L": (-1, 0), "R": (1, 0), "U": (0, 1), "D": (0, -1)}
+def advance(a: ks.coord.Coord, b: ks.coord.Coord) -> ks.coord.Coord:
+    return a if a.dist_max(b) <= 1 else a + (b - a).sign()
 
 
-def part1(stdin: typing.TextIO):
-    hx, hy = 0, 0
-    tx, ty = 0, 0
-    seen = {(0, 0)}
+def part1(stdin: typing.TextIO) -> int:
+    head = tail = ks.coord.Coord()
+    seen: set[ks.coord.Coord] = {head}
 
     for d, n in parse(stdin):
-        dx, dy = offset[d]
-        # hx += n * dx
-        # hy += n * dy
         for _ in range(n):
-            hx += dx
-            hy += dy
-            while max(abs(tx - hx), abs(ty - hy)) > 1:
-                if abs(tx - hx) > 0:
-                    tx += 1 if hx > tx else -1
-                if abs(ty - hy) > 0:
-                    ty += 1 if hy > ty else -1
-                seen.add((tx, ty))
+            head += d
+            tail = advance(tail, head)
+            seen.add(tail)
 
     return len(seen)
 
 
-def part2(stdin: typing.TextIO):
-    rope = [(0, 0)] * 10
-    seen = set()
+def part2(stdin: typing.TextIO) -> int:
+    rope = [ks.coord.Coord()] * 10
+    seen: set[ks.coord.Coord] = set()
+
     for d, n in parse(stdin):
-        dx, dy = offset[d]
         for _ in range(n):
-            hx, hy = rope[0]
-            rope[0] = hx + dx, hy + dy
-
-            for i in range(1, len(rope)):
-                px, py = rope[i - 1]
-                kx, ky = rope[i]
-                while max(abs(kx - px), abs(ky - py)) > 1:
-                    if abs(kx - px) > 0:
-                        kx += 1 if px > kx else -1
-                    if abs(ky - py) > 0:
-                        ky += 1 if py > ky else -1
-                rope[i] = kx, ky
-
+            rope[0] += d
+            for i in range(len(rope) - 1):
+                rope[i + 1] = advance(rope[i + 1], rope[i])
             seen.add(rope[-1])
 
     return len(seen)
-
-    pass
