@@ -28,9 +28,9 @@ edit-python year day:
   mkdir -p "python/$1"
   file="python/$1/$(printf '%02d' "$2").py"
   if [[ -e "$file" ]]; then
-    echo $'\e[93;1m'"file ${file@Q} already exists; opening."$'\e[m'
+    echo $'\e[93;1m'"file ${file@Q} already exists; opening."$'\e[m' >& 2
   else
-    echo $'\e[93;1m'"file ${file@Q} doesn't exist; initializing from template."$'\e[m'
+    echo $'\e[93;1m'"file ${file@Q} doesn't exist; initializing from template."$'\e[m' >& 2
     cp 'python/_template.py' "$file"
   fi
   nvim "$file"
