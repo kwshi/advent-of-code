@@ -40,6 +40,13 @@ def minify(f: Fn[P, typing.Iterable[int]]) -> Fn[P, int]:
     return postprocess(min, f)
 
 
+def joinify(sep: str = "") -> Fn[[Fn[P, typing.Iterable[str]]], Fn[P, str]]:
+    def wrap(f: Fn[P, typing.Iterable[str]]) -> Fn[P, str]:
+        return postprocess(sep.join, f)
+
+    return wrap
+
+
 def count_unique(f: Fn[P, typing.Iterable[object]]) -> Fn[P, int]:
     def wrapped(*args: P.args, **kwargs: P.kwargs):
         return len({*f(*args, **kwargs)})
