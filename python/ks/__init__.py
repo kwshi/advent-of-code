@@ -1,4 +1,4 @@
 # pyright: strict
-from . import parse, iter, func
+from . import parse, iter, func, grid
 
-__all__ = ["parse", "iter", "func"]
+__all__ = ["parse", "iter", "func", "grid"]

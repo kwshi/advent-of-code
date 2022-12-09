@@ -2,63 +2,52 @@
 from .. import ks
 import typing
 
-import itertools as it
-
-Grid = list[list[int]]
-Position = tuple[int, int]
-Positions = typing.Iterable[Position]
+import math
 
 
-def parse(stdin: typing.TextIO):
-    grid = [[*map(int, row)] for row in ks.parse.lines(stdin)]
-    return grid, len(grid), len(grid[0])
-
-
-def visualize(grid: Grid, pos: Positions):
+def visualize(grid: ks.grid.Grid[int], pos: typing.Iterable[ks.grid.Key]):
     highest = None
-    for i, j in pos:
-        c = grid[i][j]
-        if highest is None or highest < c:
-            yield i, j
-            highest = c
+    for p in pos:
+        if highest is None or highest < grid[p]:
+            highest = grid[p]
+            yield p
 
 
 def part1(stdin: typing.TextIO):
-    grid, m, n = parse(stdin)
-    visible: set[Position] = set()
+    grid = ks.grid.parse_digits(stdin)
+    visible: set[ks.grid.Key] = set()
 
-    for i in range(m):
-        visible.update(visualize(grid, ((i, j) for j in range(n))))
-        visible.update(visualize(grid, ((i, n - 1 - j) for j in range(n))))
+    for i in range(grid.height):
+        visible.update(visualize(grid, grid.row_keys(i)))
+        visible.update(visualize(grid, grid.row_keys(i, reverse=True)))
 
-    for j in range(n):
-        visible.update(visualize(grid, ((i, j) for i in range(m))))
-        visible.update(visualize(grid, ((m - 1 - i, j) for i in range(m))))
+    for j in range(grid.width):
+        visible.update(visualize(grid, grid.column_keys(j)))
+        visible.update(visualize(grid, grid.column_keys(j, reverse=True)))
 
     return len(visible)
 
 
-def view(grid: Grid, here: int, pos: Positions) -> int:
+def view(grid: ks.grid.Grid[int], here: int, pos: typing.Iterable[ks.grid.Key]) -> int:
     dist = 0
-    for (i, j) in pos:
+    for p in pos:
         dist += 1
-        if grid[i][j] >= here:
+        if grid[p] >= here:
             break
     return dist
 
 
 def part2(stdin: typing.TextIO):
-    grid, m, n = parse(stdin)
+    grid = ks.grid.parse_digits(stdin)
 
     best = 0
-    for i, j in it.product(range(m), range(n)):
-        here = grid[i][j]
+    for p in grid.keys():
         best = max(
             best,
-            view(grid, here, ((ii, j) for ii in range(i + 1, m, 1)))
-            * view(grid, here, ((ii, j) for ii in range(i - 1, -1, -1)))
-            * view(grid, here, ((i, jj) for jj in range(j + 1, n, 1)))
-            * view(grid, here, ((i, jj) for jj in range(j - 1, -1, -1))),
+            math.prod(
+                view(grid, grid[p], ray)
+                for ray in grid.rays_keys(p, include_start=False)
+            ),
         )
 
     return best
