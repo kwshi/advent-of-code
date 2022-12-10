@@ -236,6 +236,8 @@ class Grid(typing.Generic[A]):
         render_cell: typing.Callable[[A], str] = str,
         out: typing.TextIO = sys.stderr,
     ) -> None:
+        # TODO: add options to customize display to make it more readable
+        # TODO: automatic OCR :)
         max_width = max(len(render_cell(c)) for c in self._values)
         sep = "" if max_width == 1 else " "
         for i in range(self._height):
@@ -249,6 +251,10 @@ class Grid(typing.Generic[A]):
             )
             out.write("\n")
         out.flush()
+
+
+def from_constant(value: A, height: int, width: int) -> Grid[A]:
+    return Grid([value] * (height * width), height, width)
 
 
 def from_rows(rows: typing.Iterable[typing.Iterable[A]]) -> Grid[A]:
