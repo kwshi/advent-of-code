@@ -1,3 +1,4 @@
+# pyright: strict
 from .. import ks
 import typing
 
@@ -9,6 +10,8 @@ def parse(stdin: typing.TextIO):
                 yield None
             case ["addx", n]:
                 yield int(n)
+            case _:
+                raise ValueError(f"unexpected instruction {line!r}")
 
 
 def run(program: typing.Iterable[int | None]) -> typing.Iterator[int]:
