@@ -3,6 +3,7 @@
 import html.parser
 import dataclasses
 import enum
+import abc
 
 from . import page
 
@@ -19,21 +20,26 @@ class StateMode(enum.Enum):
     AFTER_MAIN = "AFTER_MAIN"
 
 
+class StateBase(abc.ABC):
+    def data(self, data: str):
+        pass
+
+
 class ParagraphType(enum.Enum):
     PARAGRAPH = "PARAGRAPH"
     HEADER = "HEADER"
 
 
 @dataclasses.dataclass
-class StateRoot:
+class StateRoot(StateBase):
     articles: list[page.Article] | None
 
     def start(self, tag: str, _: dict[str, str | None]):
         if tag == "main":
             return StateMain(root=self, open_tags=[], articles=[])
 
-    def data(self, _: str):
-        pass
+    # def data(self, data: str):
+    #    pass
 
     def end(self, _: str):
         return self
@@ -150,7 +156,7 @@ class TextStateRoot:
                 self.start_em(depth)
 
             case "code":
-                return TextStateCode(parent=self, tag_depth=depth, nodes=[])
+                return TextStateCode(parent=self, tag_depth=depth, content=[])
 
             case "a":
                 return TextStateLink(
@@ -185,16 +191,12 @@ class TextStateRoot:
 class TextStateCode:
     parent: TextStateRoot
     tag_depth: int
-    nodes: list[page.Text | page.Link[page.Text]]
+    content: list[page.Text]
 
     def start(self, tag: str, depth: int):
         match tag:
             case "em":
                 self.parent.start_em(depth)
-            case "a":
-                return TextStateCodeLink(
-                    parent=self, href="TODO", tag_depth=depth, text=[]
-                )
             case _:
                 pass
 
@@ -206,35 +208,7 @@ class TextStateCode:
             case "em":
                 self.parent.end_em(depth)
             case "code":
-                self.parent.nodes.append(page.Code(self.nodes))
-                return self.parent
-            case _:
-                pass
-
-
-@dataclasses.dataclass
-class TextStateCodeLink:
-    parent: TextStateCode
-    href: str
-    tag_depth: int
-    text: list[page.Text]
-
-    def start(self, tag: str, depth: int):
-        match tag:
-            case "em":
-                self.parent.parent.start_em(depth)
-            case _:
-                pass
-
-    def data(self, _: str):
-        pass
-
-    def end(self, tag: str, depth: int):
-        match tag:
-            case "em":
-                self.parent.parent.end_em(depth)
-            case "a":
-                self.parent.nodes.append(page.Link(self.href, self.text))
+                self.parent.nodes.append(page.Code(self.content))
                 return self.parent
             case _:
                 pass
@@ -245,7 +219,7 @@ class TextStateLink:
     parent: TextStateRoot
     tag_depth: int
     href: str
-    nodes: list[page.Text | page.Code[page.Text]]
+    nodes: list[page.Text]
 
     def start(self, tag: str, depth: int):
         match tag:
@@ -268,40 +242,7 @@ class TextStateLink:
                 pass
 
 
-@dataclasses.dataclass
-class TextStateLinkCode:
-    parent: TextStateLink
-    tag_depth: int
-    nodes: list[page.Text]
-
-    def start(self, tag: str, depth: int):
-        match tag:
-            case "em":
-                self.parent.parent.start_em(depth)
-            case _:
-                pass
-
-    def data(self, _: str):
-        pass
-
-    def end(self, tag: str, depth: int):
-        match tag:
-            case "em":
-                self.parent.parent.end_em(depth)
-            case "a":
-                self.parent.nodes.append(page.Code(self.nodes))
-                return self.parent
-            case _:
-                pass
-
-
-TextState = (
-    TextStateRoot
-    | TextStateCode
-    | TextStateLink
-    | TextStateCodeLink
-    | TextStateLinkCode
-)
+TextState = TextStateRoot | TextStateCode | TextStateLink
 
 
 @dataclasses.dataclass
@@ -357,7 +298,7 @@ class StateListItem:
 class StateCodeBlock:
     article: StateArticle
     tag_depth: int
-    nodes: list[page.Text | page.Link[page.Text]]
+    nodes: list[page.Text]
     em_tag_depth: int | None
 
     def start(self, tag: str, _: dict[str, str | None]):

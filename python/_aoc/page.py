@@ -14,17 +14,17 @@ class Text:
 
 
 @dataclasses.dataclass
-class Code(typing.Generic[A]):
-    content: list[A]
+class Code:
+    content: list[Text]
 
 
 @dataclasses.dataclass
-class Link(typing.Generic[A]):
+class Link:
     href: str
-    content: list[A]
+    content: list[Text]
 
 
-Node = Text | Code[Text | Link[Text]] | Link[Text | Code[Text]]
+Node = Text | Code | Link
 
 
 @dataclasses.dataclass
@@ -34,7 +34,7 @@ class Header:
 
 @dataclasses.dataclass
 class CodeBlock:
-    content: list[Text | Link[Text]]
+    content: list[Text]
 
 
 @dataclasses.dataclass
