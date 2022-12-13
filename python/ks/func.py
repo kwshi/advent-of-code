@@ -1,6 +1,8 @@
 # pyright: strict
 import typing
 
+import math
+
 A = typing.TypeVar("A")
 B = typing.TypeVar("B")
 
@@ -18,6 +20,10 @@ def postprocess(p: Fn[[A], B], f: Fn[P, A]) -> Fn[P, B]:
 
 def sumify(f: Fn[P, typing.Iterable[int]]) -> Fn[P, int]:
     return postprocess(sum, f)
+
+
+def prodify(f: Fn[P, typing.Iterable[int]]) -> Fn[P, int]:
+    return postprocess(math.prod, f)
 
 
 def listify(f: Fn[P, typing.Iterable[A]]) -> Fn[P, list[A]]:
