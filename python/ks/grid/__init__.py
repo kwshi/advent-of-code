@@ -226,9 +226,13 @@ class Grid(typing.Generic[A]):
 
     def items(self) -> typing.Iterator[tuple[Key, A]]:
         return (
-            ((k // self._height, k % self._width), value)
+            ((k // self._width, k % self._width), value)
             for k, value in enumerate(self._values)
         )
+
+    def find(self, value: A) -> Key:
+        k = self._values.index(value)
+        return k // self._width, k % self._width
 
     def render(
         self,
