@@ -14,13 +14,9 @@ def adjacent(p: tuple[int, int, int]):
             yield x + sign * dx, y + sign * dy, z + sign * dz
 
 
-@ks.func.sumify
 def part1(stdin: typing.TextIO):
     seen = parse(stdin)
-    for p in seen:
-        for a in adjacent(p):
-            if a not in seen:
-                yield 1
+    return sum(a not in seen for p in seen for a in adjacent(p))
 
 
 def part2(stdin: typing.TextIO):
