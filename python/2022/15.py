@@ -1,18 +1,7 @@
+# pyright: strict
+
 from .. import ks
 import typing
-
-import math
-import string
-import re
-import itertools as it
-import bisect as bs
-import functools as ft
-import collections as co
-import operator as op
-import dataclasses as dc
-import heapq as hq
-import pprint as pp
-import graphlib as gl
 
 
 def parse(stdin: typing.TextIO):
@@ -23,55 +12,27 @@ def parse(stdin: typing.TextIO):
 
 
 def part1(stdin: typing.TextIO):
-    empty = set()
     y = 2000000  # 10 for sample
+    empty = ks.Dis()
+    beacons: set[int] = set()
     for sensor, beacon in parse(stdin):
-        for dx in range(sensor.dist_taxicab(beacon) - abs(sensor.y - y) + 1):
-            empty.add(sensor.x + dx)
-            empty.add(sensor.x - dx)
+        if (width := sensor.dist_manhattan(beacon) - abs(sensor.y - y)) < 0:
+            continue
+        empty.add(ks.Interval(sensor.x - width, sensor.x + width))
         if beacon.y == y:
-            empty.remove(beacon.x)
-    return len(empty)
+            beacons.add(beacon.x)
+    return sum(i.r - i.l + 1 for i in empty.intervals()) - len(beacons)
 
 
-def insert(
-    intervals: typing.Iterable[tuple[int, int]], left: int, right: int
-) -> typing.Iterator[tuple[int, int]]:
-    start = False
-    for l, r in intervals:
-        match start:
-            case True:
-                yield l, r
-
-            case False:
-                if r < left - 1:
-                    yield l, r
-                    continue
-
-                if l > right + 1:
-                    yield left, right
-                    yield l, r
-                    start = True
-                    continue
-
-                if r <= right:
-                    yield min(left, l), right
-                    start = True
-                    continue
-
-                start = min(left, l)
-
-            case int():
-                if r <= right:
-                    yield start, right
-                pass
-
-
-# TODO interval-set solution
-# TODO n+1 solution (jonathan paulson's insight)
 def part2(stdin: typing.TextIO):
     size = 4000000  # 20 for sample
-    # size = 20
+
+    # my approach here uses a BST-like data structure for disjoint intervals to
+    # scan each row for gaps. jonathanpaulson suggested (on reddit) another
+    # clever trick to solve this: search the _boundary_ (distance d+1) around
+    # each sensor; the promise that there is exactly one 1x1 gap in the region
+    # ensures that it must lie on a boundary. I tried implementing that, but for
+    # some reason I was still running out of memory.
 
     pairs = [*parse(stdin)]
 
