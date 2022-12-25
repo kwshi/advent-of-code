@@ -26,6 +26,13 @@ class Node:
     left: typing.Self
     right: typing.Self
 
+    def __init__(self, value: int):
+        self.value = value
+        self.left = self
+        self.right = self
+
+    def append()
+
 
 def part1(stdin: typing.TextIO):
     nums = [*parse(stdin)]
