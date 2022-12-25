@@ -30,6 +30,14 @@ def mod(a: int, b: int) -> int:
     return a % b
 
 
+def neg(a: int) -> int:
+    return -a
+
+
+def invert(a: int) -> int:
+    return ~a
+
+
 def rmod(a: int, b: int) -> int:
     return b % a
 

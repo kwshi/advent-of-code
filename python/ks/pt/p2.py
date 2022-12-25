@@ -85,9 +85,10 @@ class P2:
         return self._bop(op.ge, other)
 
     def __matmul__(self, other: _Compatible) -> int:
-        match other:
-            case P2(x, y) | (x, y) | ((int() as x) as y):
-                return self.x * x + self.y * y
+        return sum(self._bop(op.mul, other))
+
+    def __rmatmul__(self, other: _Compatible) -> int:
+        return sum(self._bop(op.mul, other))
 
     def __neg__(self) -> typing.Self:
         return P2(-self.x, -self.y)
