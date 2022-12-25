@@ -9,7 +9,7 @@ class Interval:
     l: int
     r: int
 
-    _IntervalLike = typing.Self | tuple[int, int]
+    Like = typing.Self | tuple[int, int]
 
     def __init__(self, l: int, r: int | None = None):
         object.__setattr__(self, "l", l)
@@ -28,15 +28,20 @@ class Interval:
     def ints(self) -> typing.Iterable[int]:
         return range(self.l, self.r + 1)
 
-    def __contains__(self, other: int | _IntervalLike) -> bool:
+    def __contains__(self, other: int | Like) -> bool:
         match other:
             case int():
                 return self.l <= other <= self.r
             case Interval(l, r) | (l, r):
                 return self.l <= l and r <= self.r
 
-    def __and__(self, other: int | _IntervalLike) -> typing.Self | None:
+    def __and__(self, other: int | Like) -> typing.Self | None:
         match other:
             case Interval(l, r) | (l, r) | ((int() as l) as r):
                 ll, rr = max(l, self.l), min(r, self.r)
                 return None if ll > rr else Interval(ll, rr)
+
+    def __or__(self, other: int | Like) -> typing.Self | None:
+        match other:
+            case Interval(l, r) | (l, r) | ((int() as l) as r):
+                return Interval(min(l, self.l), max(r, self.r))
