@@ -56,3 +56,7 @@ def gt(a: int, b: int) -> int:
 
 def ge(a: int, b: int) -> int:
     return a >= b
+
+
+def sign(a: int) -> int:
+    return (a > 0) - (0 > a)

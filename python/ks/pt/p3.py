@@ -3,18 +3,21 @@
 import typing
 import dataclasses
 
-from . import op
+from .base import PBase
 from .p2 import P2
+
+Like = typing.Union["P3", P2, tuple[int, int, int], tuple[int, int]]
+Compatible = Like | int
 
 
 @dataclasses.dataclass(init=False, frozen=True, eq=False, slots=True)
-class P3:
+class P3(PBase[Like, Compatible]):
     x: int
     y: int
     z: int
 
-    Like = typing.Self | tuple[int, int, int] | P2.Like
-    _Compatible = Like | int
+    Like = Like
+    Compatible = Compatible
 
     @typing.overload
     def __init__(self):
@@ -44,7 +47,7 @@ class P3:
                 object.__setattr__(self, "z", z)
 
     def _bop(
-        self, f: typing.Callable[[int, int], int], other: _Compatible
+        self, f: typing.Callable[[int, int], int], other: Compatible
     ) -> typing.Self:
         match other:
             case P3(x, y, z) | (x, y, z) | (((int() as x) as y) as z):
@@ -55,31 +58,7 @@ class P3:
     def _uop(self, f: typing.Callable[[int], int]) -> typing.Self:
         return P3(f(self.x), f(self.y), f(self.z))
 
-    def __add__(self, other: _Compatible) -> typing.Self:
-        return self._bop(op.add, other)
-
-    def __radd__(self, other: _Compatible) -> typing.Self:
-        return self._bop(op.add, other)
-
-    def __sub__(self, other: _Compatible) -> typing.Self:
-        return self._bop(op.sub, other)
-
-    def __rsub__(self, other: _Compatible) -> typing.Self:
-        return self._bop(op.rsub, other)
-
-    def __mul__(self, other: _Compatible) -> typing.Self:
-        return self._bop(op.mul, other)
-
-    def __rmul__(self, other: _Compatible) -> typing.Self:
-        return self._bop(op.mul, other)
-
-    def __matmul__(self, other: _Compatible) -> int:
-        return sum(self._bop(op.mul, other))
-
-    def __rmatmul__(self, other: _Compatible) -> int:
-        return sum(self._bop(op.mul, other))
-
-    def cross(self, other: _Compatible) -> typing.Self:
+    def cross(self, other: Compatible) -> typing.Self:
         match other:
             case P3(x, y, z) | (x, y, z):
                 return P3(
@@ -96,48 +75,10 @@ class P3:
             case int():
                 return P3(self.y * other, -self.x * other, 0)
 
-    def __neg__(self) -> typing.Self:
-        return self._uop(op.neg)
-
-    def __invert__(self) -> typing.Self:
-        return self._uop(op.invert)
-
-    def __pos__(self) -> typing.Self:
-        return self
-
-    def __abs__(self) -> typing.Self:
-        return self._uop(abs)
-
     def __iter__(self) -> typing.Iterator[int]:
         yield self.x
         yield self.y
         yield self.z
-
-    def __floordiv__(self, other: Like) -> typing.Self:
-        return self._bop(op.floordiv, other)
-
-    def __mod__(self, other: Like) -> typing.Self:
-        return self._bop(op.mod, other)
-
-    def __rfloordiv__(self, other: Like) -> typing.Self:
-        return self._bop(op.rfloordiv, other)
-
-    def __rmod__(self, other: Like) -> typing.Self:
-        return self._bop(op.rmod, other)
-
-    @property
-    def norm1(self) -> int:
-        return sum(abs(self))
-
-    @property
-    def normi(self) -> int:
-        return max(abs(self))
-
-    def dist1(self, other: Like) -> int:
-        return (self - other).norm1
-
-    def disti(self, other: Like) -> int:
-        return (self - other).normi
 
     @property
     def adj1(self) -> typing.Iterable[typing.Self]:

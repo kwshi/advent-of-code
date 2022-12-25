@@ -2,14 +2,17 @@
 import typing
 import dataclasses
 
-from . import op
+from .base import PBase
+
+Like = typing.Union["P2", tuple[int, int]]
+Compatible = Like | int
 
 
 @dataclasses.dataclass(init=False, frozen=True, eq=False, slots=True)
-class P2:
+class P2(PBase[Like, Compatible]):
 
-    Like = typing.Self | tuple[int, int]
-    _Compatible = Like | int
+    Like = Like
+    Compatible = Compatible
 
     x: int
     y: int
@@ -36,68 +39,14 @@ class P2:
                 object.__setattr__(self, "y", y)
 
     def _bop(
-        self, f: typing.Callable[[int, int], int], other: _Compatible
+        self, f: typing.Callable[[int, int], int], other: Compatible
     ) -> typing.Self:
         match other:
             case P2(x, y) | (x, y) | ((int() as x) as y):
                 return P2(f(self.x, x), f(self.y, y))
 
-    def __add__(self, other: _Compatible) -> typing.Self:
-        return self._bop(op.add, other)
-
-    def __radd__(self, other: _Compatible) -> typing.Self:
-        return self._bop(op.add, other)
-
-    def __sub__(self, other: _Compatible) -> typing.Self:
-        return self._bop(op.sub, other)
-
-    def __rsub__(self, other: _Compatible) -> typing.Self:
-        return self._bop(op.rsub, other)
-
-    def __mul__(self, other: _Compatible) -> typing.Self:
-        return self._bop(op.mul, other)
-
-    def __rmul__(self, other: _Compatible) -> typing.Self:
-        return self._bop(op.mul, other)
-
-    def __floordiv__(self, other: _Compatible) -> typing.Self:
-        return self._bop(op.floordiv, other)
-
-    def __rfloordiv__(self, other: _Compatible) -> typing.Self:
-        return self._bop(op.rfloordiv, other)
-
-    def __mod__(self, other: _Compatible) -> typing.Self:
-        return self._bop(op.mod, other)
-
-    def __rmod__(self, other: _Compatible) -> typing.Self:
-        return self._bop(op.rmod, other)
-
-    def __lt__(self, other: _Compatible) -> typing.Self:
-        return self._bop(op.lt, other)
-
-    def __le__(self, other: _Compatible) -> typing.Self:
-        return self._bop(op.le, other)
-
-    def __gt__(self, other: _Compatible) -> typing.Self:
-        return self._bop(op.gt, other)
-
-    def __ge__(self, other: _Compatible) -> typing.Self:
-        return self._bop(op.ge, other)
-
-    def __matmul__(self, other: _Compatible) -> int:
-        return sum(self._bop(op.mul, other))
-
-    def __rmatmul__(self, other: _Compatible) -> int:
-        return sum(self._bop(op.mul, other))
-
-    def __neg__(self) -> typing.Self:
-        return P2(-self.x, -self.y)
-
-    def __pos__(self) -> typing.Self:
-        return self
-
-    def __abs__(self) -> typing.Self:
-        return P2(abs(self.x), abs(self.y))
+    def _uop(self, f: typing.Callable[[int], int]) -> typing.Self:
+        return P2(f(self.x), f(self.y))
 
     def __iter__(self) -> typing.Iterator[int]:
         yield self.x
@@ -117,18 +66,6 @@ class P2:
                 return self.x * y - x * self.y
             case int():
                 return P2(self.y * other, -self.x * other)
-
-    @property
-    def sign(self) -> typing.Self:
-        return (self > 0) - (0 > self)
-
-    @property
-    def norm1(self) -> int:
-        return abs(self.x) + abs(self.y)
-
-    @property
-    def normi(self) -> int:
-        return max(abs(self.x), abs(self.y))
 
     @property
     def rot1(self) -> typing.Self:
@@ -166,12 +103,6 @@ class P2:
     @property
     def swap(self) -> typing.Self:
         return P2(self.y, self.x)
-
-    def dist1(self, other: Like) -> int:
-        return (self - other).norm1
-
-    def disti(self, other: Like) -> int:
-        return (self - other).normi
 
     def circ1(self, radius: int) -> typing.Iterator[typing.Self]:
         if not radius:
@@ -217,9 +148,6 @@ class P2:
             self + (0, -1),
             self + (1, -1),
         ]
-
-    def __str__(self) -> str:
-        return f"P2({self.x:d},{self.y:d})"
 
     @property
     def east(self) -> typing.Self:
