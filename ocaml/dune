@@ -1,7 +1,7 @@
 (executable
  (public_name ks-aoc)
  (name main)
- (libraries ks_aoc cmdliner containers year2015)
+ (libraries cmdliner containers year2015)
  (preprocess (pps generate_days))
  (preprocessor_deps (source_tree 2015))
 )
