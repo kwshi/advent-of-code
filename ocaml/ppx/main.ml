@@ -37,7 +37,7 @@ let expander :
       @@ List.map
            (fun day ->
              eapply ~loc:apply_loc fn
-               [ estring ~loc:year.loc year.txt
+               [ estring ~loc:year_loc' day
                ; pexp_pack ~loc:year_loc'
                  @@ pmod_ident ~loc:year_loc'
                       { loc= year_loc'
