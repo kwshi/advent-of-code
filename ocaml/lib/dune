@@ -1,2 +1,3 @@
 (library
- (name ks_aoc))
+ (name ks)
+ (libraries containers iter))
