@@ -39,7 +39,7 @@ submit year day part:
   #!/bin/bash
   set -euo pipefail
   read -r answer \
-    && curl -fsS
+    && curl -fsS \
       -A 'github.com/kwshi/advent-of-code by shi.kye@gmail.com / justfile' \
       -b "session=$AOC_SESSION" \
       -d "level=$(printf '%d' "$3")" \
