@@ -2,10 +2,20 @@ set dotenv-load
 set positional-arguments
 
 fetch year day:
-  curl -fsS \
-    -A 'github.com/kwshi/advent-of-code by shi.kye@gmail.com / justfile' \
-    -b "session=$AOC_SESSION" \
-    "https://adventofcode.com/$1/day/$(printf '%d' "$2")/input"
+  #!/bin/bash
+  set -euo pipefail
+  file="input/$1/$2"
+  if [[ -e "$file" ]]; then
+    echo $'\e[93;1m'"file ${file@Q} already exists; returning local copy."$'\e[m' >&2
+    cat "$file"
+  else
+    echo $'\e[93;1m'"file ${file@Q} doesn't exist; fetching from AoC website."$'\e[m' >&2
+    curl -fsS \
+      -A 'github.com/kwshi/advent-of-code by shi.kye@gmail.com / justfile' \
+      -b "session=$AOC_SESSION" \
+      "https://adventofcode.com/$1/day/$(printf '%d' "$2")/input" \
+      | tee "$file"
+  fi
 
 download year day:
   #!/bin/bash
