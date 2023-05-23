@@ -1,3 +1,3 @@
 (library
   (name year2015)
-  (libraries containers iter angstrom))
+  (libraries containers iter angstrom yojson))
