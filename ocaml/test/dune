@@ -1,2 +1,3 @@
 (test
- (name ks_aoc))
+ (name ks_aoc)
+ (libraries ppxlib))
