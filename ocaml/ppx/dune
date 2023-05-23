@@ -1,0 +1,4 @@
+(library
+  (name generate_days)
+  (kind ppx_rewriter)
+  (libraries ppxlib containers re))
