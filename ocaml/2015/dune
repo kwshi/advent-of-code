@@ -1,4 +1,4 @@
 (library
   (name year2015)
-  (libraries containers re iter angstrom yojson ks)
+  (libraries containers fmt re iter angstrom yojson ks lp)
   (preprocess (pps ppx_regexp ppx_deriving.show ppx_deriving.ord)))
