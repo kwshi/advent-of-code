@@ -35,25 +35,25 @@ let test_perms () =
      check (list @@ list int) (format_int_list input) output
      @@ Iter.to_list @@ Ks.It.perms input
 
-let factorial =
-  let rec go acc n = if n <= 0 then acc else go (n * acc) (n - 1) in
-  go 1
-
 let test_perms' =
-  let check input =
-    let perms = Ks.It.perms input in
-    let len = List.length input in
-    Iter.length perms = factorial len
-    && Iter.sorted ~cmp:(List.compare Int.compare) perms
+  let factorial =
+    let rec go acc n = if n <= 0 then acc else go (n * acc) (n - 1) in
+    go 1
   in
-  QCheck_alcotest.to_alcotest
-  @@
-  let open QCheck in
+  let check input =
+    let perms = Ks.It.perms input |> Iter.to_list in
+    let len = List.length input in
+    List.length perms = factorial len
+    && List.equal (List.equal Int.equal) perms
+         (List.sort_uniq ~cmp:(List.compare Int.compare) perms)
+  in
   let input =
-    list_of_size Gen.(int_range 0 8) int
+    let open QCheck in
+    list_of_size Gen.(int_range 0 7) int
     |> map ~rev:Fun.id @@ List.sort_uniq ~cmp:Int.compare
   in
-  Test.make ~name:"perms (qcheck)" input check
+  QCheck_alcotest.to_alcotest
+  @@ QCheck.Test.make ~name:"perms (qcheck)" input check
 
 let tests =
   [ test_case "slinky" `Quick test_slinky
