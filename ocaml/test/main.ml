@@ -1,1 +1,1 @@
-let () = Alcotest.run "ks" [("pt", Pt.tests); ("it", It.tests)]
+let () = Alcotest.run "Ks" [("Pt", Pt.tests); ("It", It.tests)]
