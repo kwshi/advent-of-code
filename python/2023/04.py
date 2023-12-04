@@ -1,3 +1,4 @@
+# pyright: strict
 from .. import ks
 import typing
 
@@ -24,7 +25,7 @@ def part1(stdin: typing.TextIO):
 
 @ks.func.sum
 def part2(stdin: typing.TextIO):
-    extra = co.defaultdict(int)
+    extra: co.defaultdict[int, int] = co.defaultdict(int)
     for i, winning, stuff in parse(stdin):
         yield (m := extra[i] + 1)
         for j in range(len({*winning} & {*stuff})):
