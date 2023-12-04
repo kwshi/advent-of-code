@@ -21,6 +21,8 @@ module type Container = sig
   val map2 : ('a -> 'b -> 'c) -> 'a t -> 'b t -> 'c t
 
   val fold : ('b -> 'a -> 'b) -> 'b -> 'a t -> 'b
+
+  val to_iter : 'a t -> 'a Iter.t
 end
 
 module type Num = sig
@@ -65,6 +67,8 @@ module C2 = struct
   let map2 f v v' = {x= f v.x v'.x; y= f v.y v'.y}
 
   let fold f i v = f (f i v.x) v.y
+
+  let to_iter v f = f v.x ; f v.y
 end
 
 module C3 = struct
@@ -87,6 +91,8 @@ module C3 = struct
   let map2 f v v' = {x= f v.x v'.x; y= f v.y v'.y; z= f v.z v'.z}
 
   let fold f i v = f (f (f i v.x) v.y) v.z
+
+  let to_iter v f = f v.x ; f v.y ; f v.z
 end
 
 module Make (C : Container) (N : Num) = struct

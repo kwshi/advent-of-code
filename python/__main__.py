@@ -5,10 +5,14 @@ import os
 import importlib
 import re
 
+
 from . import _aoc
 
 
 if __name__ == "__main__":
+    # dynamic import only to silence pyright warnings about `hy` missing type stubs
+    importlib.import_module("hy")
+
     years = filter(
         re.compile(r"\d{4}", flags=re.ASCII).fullmatch,
         os.listdir(os.path.dirname(__file__)),
@@ -54,11 +58,12 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
+    mod_name = f".{args.year}.{args.day:02d}"
     try:
-        mod = importlib.import_module(
-            f".{args.year}.{args.day:02d}", package=__package__
-        )
-    except ModuleNotFoundError:
+        mod = importlib.import_module(mod_name, package=__package__)
+    except ModuleNotFoundError as err:
+        if not err.name or f'.{".".join(err.name.split(".")[-2:])}' != mod_name:
+            raise err
         print(
             f"{args.year} day {args.day} solution hasn't been implemented yet!",
             file=sys.stderr,

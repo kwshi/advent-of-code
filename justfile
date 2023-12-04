@@ -4,17 +4,20 @@ set positional-arguments
 fetch year day:
   #!/bin/bash
   set -euo pipefail
-  file="input/$1/$2"
+  file="input/$1/$(printf '%02d' "$2")"
   if [[ -e "$file" ]]; then
     echo $'\e[93;1m'"file ${file@Q} already exists; returning local copy."$'\e[m' >&2
     cat "$file"
   else
     echo $'\e[93;1m'"file ${file@Q} doesn't exist; fetching from AoC website."$'\e[m' >&2
-    curl -fsS \
-      -A 'github.com/kwshi/advent-of-code by shi.kye@gmail.com / justfile' \
-      -b "session=$AOC_SESSION" \
-      "https://adventofcode.com/$1/day/$(printf '%d' "$2")/input" \
-      | tee "$file"
+    data="$(
+      curl -fsS \
+        -A 'github.com/kwshi/advent-of-code by shi.kye@gmail.com / justfile' \
+        -b "session=$AOC_SESSION" \
+        "https://adventofcode.com/$1/day/$(printf '%d' "$2")/input"
+    )"
+    mkdir -p "input/$1"
+    echo "$data" | tee "$file"
   fi
 
 download year day:
