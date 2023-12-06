@@ -10,7 +10,6 @@ Compatible = Like | int
 
 @dataclasses.dataclass(init=False, frozen=True, eq=False, slots=True)
 class P2(PBase[Like, Compatible]):
-
     Like = Like
     Compatible = Compatible
 
@@ -18,15 +17,15 @@ class P2(PBase[Like, Compatible]):
     y: int
 
     @typing.overload
-    def __init__(self):
+    def __init__(self) -> None:
         pass
 
     @typing.overload
-    def __init__(self, x_or_pt: int, y: int):
+    def __init__(self, x_or_pt: int, y: int) -> None:
         pass
 
     @typing.overload
-    def __init__(self, x_or_pt: Like):
+    def __init__(self, x_or_pt: Like) -> None:
         pass
 
     def __init__(self, x_or_pt: Like | int = 0, y: int = 0):

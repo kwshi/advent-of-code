@@ -20,15 +20,15 @@ class P3(PBase[Like, Compatible]):
     Compatible = Compatible
 
     @typing.overload
-    def __init__(self):
+    def __init__(self) -> None:
         pass
 
     @typing.overload
-    def __init__(self, x_or_pt: Like):
+    def __init__(self, x_or_pt: Like) -> None:
         pass
 
     @typing.overload
-    def __init__(self, x_or_pt: int, y: int, z: int):
+    def __init__(self, x_or_pt: int, y: int, z: int) -> None:
         pass
 
     def __init__(self, x_or_pt: int | Like = 0, y: int = 0, z: int = 0):
