@@ -11,7 +11,7 @@ from . import _aoc
 
 if __name__ == "__main__":
     # dynamic import only to silence pyright warnings about `hy` missing type stubs
-    importlib.import_module("hy")
+    # importlib.import_module("hy")
 
     years = filter(
         re.compile(r"\d{4}", flags=re.ASCII).fullmatch,
