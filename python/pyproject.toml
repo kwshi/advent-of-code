@@ -1,2 +1,3 @@
 [tool.pyright]
 pythonVersion = '3.12'
+typeCheckingMode = 'strict'
