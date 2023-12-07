@@ -48,6 +48,11 @@ edit-python year day:
   fi
   nvim "$file"
 
+edit-input year day:
+  #!/bin/bash
+  mkdir -p "input/$1"
+  nvim "input/$1/$2"
+
 submit year day part:
   #!/bin/bash
   set -euo pipefail
