@@ -17,8 +17,6 @@ class CardType(enum.Enum):
 
 
 
-def tiebreaker(strength: list[str], card: str):
-    return (*(-strength.index(c) for c in card),)
 
 def classify1(card: str):
     counts = co.Counter(card)
@@ -63,9 +61,11 @@ def parse(stdin: typing.TextIO):
 
 
 def make(strength: list[str], classify: typing.Callable[[str],CardType]):
+    def tiebreaker(card: str):
+        return (*(-strength.index(c) for c in card),)
     def score(pair: tuple[str, int]):
         card, _ = pair
-        return classify(card).value, tiebreaker(strength, card)
+        return classify(card).value, tiebreaker(card)
     def solve(stdin: typing.TextIO):
         cards = sorted(parse(stdin), key=score)
         return sum((i+1)*n for i, (_, n) in enumerate(cards))
