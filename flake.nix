@@ -38,6 +38,8 @@
         z3
         #sympy
         #numpy
+        pytest
+        hypothesis
       ];
 
     extraPackages = p:
