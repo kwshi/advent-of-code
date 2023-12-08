@@ -17,7 +17,7 @@ class Interval:
 
     def __eq__(self, other: object) -> bool:
         match other:
-            case Interval(l, r) | (l, r):
+            case Interval(l, r) | (int() as l, int() as r):
                 return self.l == l and self.r == r
             case _:
                 return False
