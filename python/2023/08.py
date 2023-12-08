@@ -76,74 +76,26 @@ def part2_old(stdin: typing.TextIO):
 
 
 def part2(stdin: typing.TextIO):
-
-    #def find_cycle(start: str):
-    #    # other pyright issue from yesterday: 'a, b, c'.split(', ').index(x) LiteralString and str
-    #    # pyright issue: try removing type annotation on seen
-    #    state: tuple[str, int] = (start, 0)
-    #    seen: dict[tuple[str, int], int] = {state: 0}
-    #    ends: dict[int, int] = {}
-    #    for step in it.count(1):
-    #        key, index = state
-    #        key, index = state = rules[key][typing.cast(typing.Literal['L','R'],moves[index])], (index+1)%len(moves)
-    #        if state in seen:
-    #            return Cycle(seen[state], step - seen[state], ends)
-    #        seen[state] = step
-    #        if key.endswith('Z'):
-    #            ends[step] = index
-    #    assert False
-
-    def simplify(rules: dict[str, Room]):
-        bins: co.defaultdict[Room, set[str]] = co.defaultdict(set)
-        for k, room in rules.items():
-            bins[room].add(k)
-        rewrite: dict[str, str] = {}
-        final = True
-        for bin in bins.values():
-            canonical = min(bin)
-            for room in bin: rewrite[room] = canonical
-            final &= len(bin) == 1
-        #pp.pprint(bins)
-        #pp.pprint(rewrite)
-        return {rewrite[k]: Room(rewrite[room.left], rewrite[room.right]) for k, room in rules.items()}, final
-
-
-
+    def find_cycle(start: str):
+        # other pyright issue from yesterday: 'a, b, c'.split(', ').index(x) LiteralString and str
+        # pyright issue: try removing type annotation on seen
+        state: tuple[str, int] = (start, 0)
+        seen: dict[tuple[str, int], int] = {state: 0}
+        ends: dict[int, int] = {}
+        for step in it.count(1):
+            key, index = state
+            key, index = state = rooms[key][typing.cast(typing.Literal['L','R'],moves[index])], (index+1)%len(moves)
+            if state in seen:
+                return Cycle(seen[state], step - seen[state], ends)
+            seen[state] = step
+            if key.endswith('Z'):
+                ends[step] = index
+        assert False
 
     moves, rooms = parse(stdin)
-    print(len({k for k in rooms if k.endswith('A')}))
+    cycles = {k: find_cycle(k) for k in rooms if k.endswith('A')}
+    pp.pprint(cycles)
+    sizes = [c.size for c in cycles.values()]
 
-    #print()
-
-    #print(len(rules))
-
-    #done = False
-    #while not done:
-    #    rules, done = simplify(rules)
-    #
-    #pp.pprint(len(rules))
-
-    #bins: co.defaultdict[Room, set[str]] = co.defaultdict(set)
-    #for k, room in rules.items():
-    #    bins[room].add(k)
-    #rewrite: dict[str, str] = {}
-    #for bin in bins.values():
-    #    canonical = min(bin)
-    #    for room in bin: rewrite[room] = canonical
-    #new = {rewrite[k]: Room(rewrite[room.left], rewrite[room.right]) for k, room in rules.items()}
-    #print(len(new), len(rules))
-
-    #cycles = {k: find_cycle(k) for k in rules if k.endswith('A')}
-
-    #"""
-    #find min s such that
-
-    #s in ends1' ∩ ends2'
-
-    #where ends' defined as
-    #{for n in ends where n≥start: n + cyclesize * k}
-
-    #s mod cyclesize = n
-    #"""
-
-
+    # this works because of a _pure_ coincidence: that for each starting room, the step at which we first encounter an end room is exactly the size of the cycle, and the cycle begins at that ending room, and the cycle contains _only_ that one ending room. meaning, an end room is hit _exactly_ at multiples of the cycle size.
+    return math.lcm(*sizes)
