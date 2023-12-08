@@ -36,6 +36,9 @@ ocaml *args:
 python *args:
   python -m 'python' -c './input' "$@"
 
+pytest:
+  pytest 'python'
+
 edit-python year day:
   #!/bin/bash
   mkdir -p "python/$1"

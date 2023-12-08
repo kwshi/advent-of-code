@@ -1,3 +1,6 @@
 [tool.pyright]
 pythonVersion = '3.12'
 typeCheckingMode = 'strict'
+
+[tool.pytest.ini_options]
+python_files = '_test/**.py'

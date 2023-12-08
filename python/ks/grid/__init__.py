@@ -99,7 +99,24 @@ class Grid[T]:
         return (self[i,j] for j in range(self.size1)for i in range(self.size0) )
 
     @classmethod
+    def from_rows(cls, rows: typing.Iterable[str]):
+        rows = [*rows]
+        if not rows:
+            raise ValueError('cannot construct Grid from empty rows')
+        height, width = len(rows), len(rows[0]) 
+        for i, row in enumerate(rows):
+            if len(row) != width:
+                raise ValueError('error while construct Grid from rows:' f' first row has width {width}, but line {i} has width {len(row)}')
+        data = []
+
+
+    @classmethod
     def read_chars(cls, stdin: typing.TextIO):
-        for line in stdin:
-            pass
+        lines = [line.rstrip('\r\n') for line in stdin]
+        if not lines:
+            raise ValueError('cannot read Grid from empty stdin')
+        width = len(lines[0])
+        for i, line in enumerate(lines):
+            if len(line) != width:
+                raise ValueError('error while reading Grid from stdin: line')
 
