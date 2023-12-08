@@ -11,3 +11,6 @@ def test_bezout(a: int, b: int):
 def test_bezout_zero():
     d, m, n = num.bezout(0, 0)
     assert d == m == n == 0
+
+def test_crt():
+    assert num.crt({3: 0, 4: 3, 5: 4}) == 39
