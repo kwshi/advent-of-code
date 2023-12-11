@@ -42,10 +42,10 @@ class P2(PBase[Like, Compatible]):
     ) -> typing.Self:
         match other:
             case P2(x, y) | (x, y) | ((int() as x) as y):
-                return P2(f(self.x, x), f(self.y, y))
+                return type(self)(f(self.x, x), f(self.y, y))
 
     def _uop(self, f: typing.Callable[[int], int]) -> typing.Self:
-        return P2(f(self.x), f(self.y))
+        return type(self)(f(self.x), f(self.y))
 
     def __iter__(self) -> typing.Iterator[int]:
         yield self.x
@@ -64,19 +64,19 @@ class P2(PBase[Like, Compatible]):
             case P2(x, y) | (x, y):
                 return self.x * y - x * self.y
             case int():
-                return P2(self.y * other, -self.x * other)
+                return type(self)(self.y * other, -self.x * other)
 
     @property
     def rot1(self) -> typing.Self:
-        return P2(-self.y, self.x)
+        return type(self)(-self.y, self.x)
 
     @property
     def rot2(self) -> typing.Self:
-        return P2(-self.x, -self.y)
+        return type(self)(-self.x, -self.y)
 
     @property
     def rot3(self) -> typing.Self:
-        return P2(self.y, -self.x)
+        return type(self)(self.y, -self.x)
 
     def rot(self, n: int) -> typing.Self:
         match n % 4:
@@ -93,15 +93,15 @@ class P2(PBase[Like, Compatible]):
 
     @property
     def negx(self) -> typing.Self:
-        return P2(-self.x, self.y)
+        return type(self)(-self.x, self.y)
 
     @property
     def negy(self) -> typing.Self:
-        return P2(self.x, -self.y)
+        return type(self)(self.x, -self.y)
 
     @property
     def swap(self) -> typing.Self:
-        return P2(self.y, self.x)
+        return type(self)(self.y, self.x)
 
     def circ1(self, radius: int) -> typing.Iterator[typing.Self]:
         if not radius:

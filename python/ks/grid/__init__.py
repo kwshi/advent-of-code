@@ -2,6 +2,7 @@ from ..point import P2
 
 import typing
 import sys
+import itertools
 
 class Grid[T]:
     _data: list[T]
@@ -12,10 +13,16 @@ class Grid[T]:
 
     _size0: int
 
-    def __init__(self, data: list[T], size0: int, *,step0:int|None=None,step1:int|None=None):
+    def __init__(self, data: list[T], size0: int):
         self._data=data
         if len(data)%size0:
             raise ValueError(f'Grid `size0` {size0} does not evenly divide data length {len(data)}')
+
+        
+        self._size0 = size0
+        self._step0 = len(data)//size0
+        self._step1 = 1
+        self._offset = 0
 
 
     def _index(self, p: P2.Like):
@@ -23,6 +30,16 @@ class Grid[T]:
             case (i,j) | P2(i,j):
                 if not (0 <= i < self.size0  and 0<=j<self.size1): raise IndexError(p)
                 return self._offset + i*self._step0 + j*self._step1
+
+    def keys0(self) -> typing.Iterator[P2]:
+        return (P2(i, j) for i in range(self.size0) for j in range(self.size1))
+
+    def keys1(self) -> typing.Iterator[P2]:
+        return (P2(i, j) for i in range(self.size0) for j in range(self.size1))
+
+    def find(self, value: T) -> P2|None:
+        for p in self.keys0():
+            if self[p] == value: return p
 
     def _update_offset(self):
         self._offset = (self._step0<0) * (1-self.size0)*self._step0+(self._step1<0)*(1-self.size1)*self._step1
@@ -110,13 +127,13 @@ class Grid[T]:
         data = []
 
 
-    @classmethod
-    def read_chars(cls, stdin: typing.TextIO):
-        lines = [line.rstrip('\r\n') for line in stdin]
-        if not lines:
-            raise ValueError('cannot read Grid from empty stdin')
-        width = len(lines[0])
-        for i, line in enumerate(lines):
-            if len(line) != width:
-                raise ValueError('error while reading Grid from stdin: line')
+def read_chars(stdin: typing.TextIO):
+    lines = [line.rstrip('\r\n') for line in stdin]
+    if not lines:
+        raise ValueError('cannot read Grid from empty stdin')
+    width = len(lines[0])
+    for i, line in enumerate(lines):
+        if len(line) != width:
+            raise ValueError('error while reading Grid from stdin: 'f' first line has width {width}, but line {i} has width {len(line)}')
+    return Grid([*itertools.chain(*lines)], len(lines))
 
