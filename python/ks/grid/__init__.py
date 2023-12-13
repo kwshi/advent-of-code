@@ -89,6 +89,7 @@ class Grid[T]:
     def transpose(self):
         self._step0, self._step1 = self._step1, self._step0
         self._size0 = self.size1
+        self._update_offset()
         return self
 
     def transpose_anti(self):
