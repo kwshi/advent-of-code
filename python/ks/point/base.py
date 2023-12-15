@@ -9,7 +9,7 @@ Like = typing.TypeVar("Like")
 Compatible = typing.TypeVar("Compatible")
 
 
-class PBase(abc.ABC, typing.Generic[Like, Compatible]):
+class PBase[Like, Compatible](abc.ABC):
     Like = Like
 
     @abc.abstractmethod
