@@ -1,4 +1,3 @@
-from .. import ks
 import typing
 
 import collections as co
@@ -8,7 +7,7 @@ def parse(stdin: typing.TextIO):
     return stdin.read().strip().split(",")
 
 
-def haash(s: str):
+def hash(s: str):
     val = 0
     for c in s:
         val += ord(c)
@@ -18,7 +17,7 @@ def haash(s: str):
 
 
 def part1(stdin: typing.TextIO):
-    return sum(map(haash, parse(stdin)))
+    return sum(map(hash, parse(stdin)))
 
 
 def part2(stdin: typing.TextIO):
@@ -28,10 +27,10 @@ def part2(stdin: typing.TextIO):
     for p in parse(stdin):
         if p.endswith("-"):
             label = p.removesuffix("-")
-            boxes[haash(label)].pop(label, None)
+            boxes[hash(label)].pop(label, None)
         else:
             label, n = p.split("=")
-            boxes[haash(label)][label] = int(n)
+            boxes[hash(label)][label] = int(n)
     return sum(
         (b + 1) * (i + 1) * n
         for b, box in boxes.items()
