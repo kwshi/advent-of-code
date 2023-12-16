@@ -37,6 +37,16 @@ class P2(PBase[Like, Compatible]):
                 object.__setattr__(self, "x", x_or_pt)
                 object.__setattr__(self, "y", y)
 
+    def __eq__(self, other: object):
+        match other:
+            case P2(x, y) | (int() as x, int() as y):
+                return self.x == x and self.y == y
+            case _:
+                return False
+
+    def __hash__(self):
+        return hash((self.x, self.y))
+
     def _bop(
         self, f: typing.Callable[[int, int], int], other: Compatible
     ) -> typing.Self:
@@ -90,6 +100,27 @@ class P2(PBase[Like, Compatible]):
                 return self.rot3
             case _:
                 assert False
+
+    def reflect(self, normal: Like):
+        match normal:
+            case (0, 0) | P2(0, 0):
+                raise ValueError("cannot reflect across 0 normal")
+            case (0, _) | P2(0, _):
+                return type(self)(self.x, -self.y)
+            case (_, 0) | P2(_, 0):
+                return type(self)(-self.x, self.y)
+            case (x, y) | P2(x, y) if x == y:
+                return type(self)(-self.y, -self.x)
+            case (x, y) | P2(x, y) if x == -y:
+                return type(self)(self.y, self.x)
+            case _:
+                raise ValueError(
+                    f"invalid reflection normal {normal}; "
+                    "must be one of eight cardinal/ordinal directions"
+                )
+
+    def reflect_on(self, axis: Like):
+        return self.reflect(type(self)(axis).rot1)
 
     @property
     def negx(self) -> typing.Self:

@@ -1,21 +1,9 @@
 # pyright: strict
-from . import parse, iter, func, grid, coord
-from .uf import Uf
-from .interval import Interval, Dis
+from . import parse as parse, iter as iter, func as func, grid as grid, coord as coord
+from .uf import Uf as Uf
+from .interval import Interval as Interval, Dis as Dis
 
-from .point.p2 import P2
-from .point.p3 import P3
+from .point.p2 import P2 as P2
+from .point.p3 import P3 as P3
 
-
-__all__ = [
-    "parse",
-    "iter",
-    "func",
-    "grid",
-    "coord",
-    "Uf",
-    "Interval",
-    "Dis",
-    "P2",
-    "P3",
-]
+from .grid import Grid as Grid

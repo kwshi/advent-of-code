@@ -27,6 +27,10 @@ class Grid[T]:
         self._step1 = 1
         self._offset = 0
 
+    @property
+    def shape(self):
+        return P2(self.size0, self.size1)
+
     def _index(self, p: P2.Like):
         match p:
             case (i, j) | P2(i, j):
@@ -34,16 +38,33 @@ class Grid[T]:
                     raise IndexError(p)
                 return self._offset + i * self._step0 + j * self._step1
 
-    def keys0(self) -> typing.Iterator[P2]:
-        return (P2(i, j) for i in range(self.size0) for j in range(self.size1))
+    def keys(self, order: typing.Literal[0, 1] = 0) -> cabc.Iterator[P2]:
+        match order:
+            case 0:
+                return (P2(i, j) for i in range(self.size0) for j in range(self.size1))
+            case 1:
+                return (P2(i, j) for j in range(self.size1) for i in range(self.size0))
 
-    def keys1(self) -> typing.Iterator[P2]:
-        return (P2(i, j) for i in range(self.size0) for j in range(self.size1))
+    def values(self, order: typing.Literal[0, 1] = 0) -> cabc.Iterator[T]:
+        return (self[p] for p in self.keys(order))
 
-    def find(self, value: T) -> P2 | None:
-        for p in self.keys0():
-            if self[p] == value:
+    def items(self, order: typing.Literal[0, 1] = 0) -> cabc.Iterator[tuple[P2, T]]:
+        return ((p, self[p]) for p in self.keys(order))
+
+    def find(self, value: T, order: typing.Literal[0, 1] = 0) -> P2 | None:
+        for p, v in self.items(order):
+            if v == value:
                 return p
+
+    def find_all(self, value: T, order: typing.Literal[0, 1] = 0) -> cabc.Iterator[P2]:
+        for p, v in self.items(order):
+            if v == value:
+                yield p
+
+    def __contains__(self, key: P2.Like):
+        match key:
+            case P2(i, j) | (i, j):
+                return 0 <= i < self.size0 and 0 <= j < self.size1
 
     def _update_offset(self):
         self._offset = (self._step0 < 0) * (1 - self.size0) * self._step0 + (
@@ -126,23 +147,12 @@ class Grid[T]:
     def iter1(self):
         return (self[i, j] for j in range(self.size1) for i in range(self.size0))
 
-    @classmethod
-    def from_rows(cls, rows: typing.Iterable[str]):
-        rows = [*rows]
-        if not rows:
-            raise ValueError("cannot construct Grid from empty rows")
-        height, width = len(rows), len(rows[0])
-        for i, row in enumerate(rows):
-            if len(row) != width:
-                raise ValueError(
-                    "error while construct Grid from rows:"
-                    f" first row has width {width}, but line {i} has width {len(row)}"
-                )
-        data = []
 
-
-def read_chars(stdin: cabc.Iterable[str], rstrip: str = "\r\n"):
-    lines = [line.rstrip(rstrip) for line in stdin]
+def from_lines(
+    stdin: cabc.Iterable[str], split: str | None = None, rstrip: str = "\r\n"
+):
+    lines = (line.rstrip(rstrip) for line in stdin)
+    lines = [line.split(split) for line in lines] if split is not None else [*lines]
     if not lines:
         raise ValueError("cannot read Grid from empty stdin")
     width = len(lines[0])
@@ -153,3 +163,8 @@ def read_chars(stdin: cabc.Iterable[str], rstrip: str = "\r\n"):
                 f" first line has width {width}, but line {i} has width {len(line)}"
             )
     return Grid([*itertools.chain(*lines)], len(lines))
+
+
+def blank[T](shape: int | P2.Like, value: T) -> Grid[T]:
+    m, n = (shape, shape) if isinstance(shape, int) else shape
+    return Grid([value] * (m * n), m)
