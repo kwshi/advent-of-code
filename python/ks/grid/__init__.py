@@ -147,6 +147,10 @@ class Grid[T]:
     def iter1(self):
         return (self[i, j] for j in range(self.size1) for i in range(self.size0))
 
+    def clone(self):
+        # return type(self)()
+        pass
+
 
 def from_lines(
     stdin: cabc.Iterable[str], split: str | None = None, rstrip: str = "\r\n"
