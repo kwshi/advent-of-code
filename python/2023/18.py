@@ -1,6 +1,7 @@
 from .. import ks
 import typing
 
+import itertools as it
 import re
 
 
@@ -21,11 +22,7 @@ def parse(stdin: typing.TextIO):
 
 def part(index: typing.Literal[0, 1]):
     def solve(stdin: typing.TextIO):
-        current = ks.P2()
-        points = [current]
-        for movement in parse(stdin):
-            current += movement[index]
-            points.append(current)
+        points = [*it.accumulate((p[index] for p in parse(stdin)))]
 
         s = b = 0
         for i in range(len(points)):
