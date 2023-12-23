@@ -68,7 +68,13 @@ def condense(
     return graph
 
 
-def crawl(
+# These two `crawl` functions are the same, but the `fast` implementation uses
+# only a single `seen` set, taking care to push and pop elements in exactly the
+# right order (DFS) so that it has the right elements at each iteration; in
+# contrast, the `slow` implementation generates a new `frozenset` at each step,
+# which is less error-prone, but uses a lot more memory (unless Python's
+# `frozenset` has a clever implementation that I'm not aware of?).
+def crawl_slow(
     graph: dict[ks.P2, dict[ks.P2, int]], start: ks.P2, end: ks.P2
 ) -> cabc.Iterator[int]:
     init = start, frozenset([start]), int()
@@ -83,62 +89,24 @@ def crawl(
             stack.append((q, seen | {q}, dist + d))
 
 
-def part1(stdin: typing.TextIO):
-    grid = ks.grid.from_lines(stdin)
-    start = ks.P2(0, 1)
-
-    def neighbors(p: ks.P2):
-        if p not in grid:
-            return
-        match grid[p]:
-            case "^":
-                q = p + (-1, 0)
-                if q in grid:
-                    yield q
-            case "v":
-                q = p + (1, 0)
-                if q in grid:
-                    yield q
-            case "<":
-                q = p + (0, -1)
-                if q in grid:
-                    yield q
-            case ">":
-                q = p + (0, 1)
-                if q in grid:
-                    yield q
-            case ".":
-                for q in p.circ1(1):
-                    if q in grid:
-                        yield q
-            case _:
-                return
-
-    # dists = dict[ks.P2, int]()
-    # dists[start] = 0
-    # for _ in range(sum(grid.shape)):
-    #    for p, d in [*dists.items()]:
-    #        for q in neighbors(p):
-    #            if q not in dists:
-    #                dists[q] = d + 1
-    #            else:
-    #                dists[q] = max(d + 1, dists[q])
-
-    # return max(dists.values())
-
-    def search(
-        seen: frozenset[ks.P2], current: ks.P2, dist: int = 0
-    ) -> cabc.Iterator[int]:
-        found = False
-        for p in neighbors(current):
-            if p in seen:
+def crawl_fast(
+    graph: dict[ks.P2, dict[ks.P2, int]], start: ks.P2, end: ks.P2
+) -> cabc.Iterator[int]:
+    stack = [(start, None), (start, int())]
+    seen = set[ks.P2]()
+    while stack:
+        p, dist = stack.pop()
+        if dist is None:
+            seen.remove(p)
+            continue
+        seen.add(p)
+        stack.append((p, None))
+        for q, d in graph[p].items():
+            if q in seen:
                 continue
-            found = True
-            yield from search(seen | {p}, p, dist + 1)
-        if not found:
-            yield dist
-
-    return max(search(frozenset(), start, 0)) - 1
+            if q == end:
+                yield dist + d
+            stack.append((q, dist + d))
 
 
 def part(neighbors: NeighborsFunction):
@@ -146,7 +114,7 @@ def part(neighbors: NeighborsFunction):
         grid = ks.grid.from_lines(stdin)
         start, end = ks.P2(0, 1), grid.shape - (1, 2)
         graph = condense(grid, neighbors, extra_hubs=[start, end])
-        return max(crawl(graph, start, end))
+        return max(crawl_fast(graph, start, end))
 
     return solve
 
