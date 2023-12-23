@@ -1,5 +1,6 @@
 # pyright: strict
 import typing
+import collections.abc as cabc
 import dataclasses
 
 from .base import PBase
@@ -210,3 +211,11 @@ class P2(PBase[Like, Compatible]):
     @property
     def se(self) -> typing.Self:
         return self + (1, -1)
+
+    def box(self, other: Compatible) -> cabc.Iterator[typing.Self]:
+        min, max = self.min(other), self.max(other)
+        return (
+            type(self)(x, y)
+            for x in range(min.x, max.x + 1)
+            for y in range(min.y, max.y + 1)
+        )

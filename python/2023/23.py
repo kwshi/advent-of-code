@@ -1,6 +1,7 @@
 from .. import ks
 import typing
 import collections.abc as cabc
+import itertools as it
 
 
 type NeighborsFunction = cabc.Callable[[ks.Grid[str], ks.P2], cabc.Iterator[ks.P2]]
@@ -37,7 +38,7 @@ def condense(
     /,
     extra_hubs: cabc.Iterable[ks.P2],
 ):
-    hubs = {p for p in grid.keys() if len([*neighbors(grid, p)]) > 2}
+    hubs = {p for p, c in grid.items() if len([*neighbors(grid, p)]) > 2 and c != "#"}
     hubs.update(extra_hubs)
 
     def hub_neighbors(start: ks.P2, move: ks.P2):
@@ -92,7 +93,7 @@ def crawl_slow(
 def crawl_fast(
     graph: dict[ks.P2, dict[ks.P2, int]], start: ks.P2, end: ks.P2
 ) -> cabc.Iterator[int]:
-    stack = [(start, None), (start, int())]
+    stack: list[tuple[ks.P2, int | None]] = [(start, 0)]
     seen = set[ks.P2]()
     while stack:
         p, dist = stack.pop()

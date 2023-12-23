@@ -1,16 +1,19 @@
-# pyright: strict
-
 import abc
 import typing
+import collections.abc as cabc
 
 from . import op
 
-Like = typing.TypeVar("Like")
-Compatible = typing.TypeVar("Compatible")
-
 
 class PBase[Like, Compatible](abc.ABC):
-    Like = Like
+    type Like = Like
+    type Compatible = Compatible
+
+    def __setattr__(self, *_):
+        raise TypeError(f"cannot mutate point")
+
+    def __hash__(self):
+        return hash(tuple(self))
 
     @abc.abstractmethod
     def __iter__(self) -> typing.Iterator[int]:
@@ -85,6 +88,12 @@ class PBase[Like, Compatible](abc.ABC):
 
     def __ge__(self, other: Compatible) -> typing.Self:
         return self._bop(op.ge, other)
+
+    def min(self, other: Compatible) -> typing.Self:
+        return self._bop(min, other)
+
+    def max(self, other: Compatible) -> typing.Self:
+        return self._bop(max, other)
 
     @property
     def sign(self) -> typing.Self:
