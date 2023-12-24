@@ -47,14 +47,25 @@
         pup
       ];
   in {
-    devShells.${system}.default = pkgs.mkShell {
-      nativeBuildInputs =
-        (ocamlCore ocamlPackages)
-        ++ [(python.withPackages pythonLibs)];
+    devShells.${system} = {
+      ocaml = pkgs.mkShell {
+        nativeBuildInputs = ocamlCore ocamlPackages;
+        buildInputs = ocamlLibs ocamlPackages;
+      };
 
-      buildInputs =
-        extraPackages pkgs
-        ++ ocamlLibs ocamlPackages;
+      python = python.env;
+
+      python-full = (python.withPackages pythonLibs).env;
+
+      default = pkgs.mkShell {
+        nativeBuildInputs =
+          (ocamlCore ocamlPackages)
+          ++ [(python.withPackages pythonLibs)];
+
+        buildInputs =
+          extraPackages pkgs
+          ++ ocamlLibs ocamlPackages;
+      };
     };
   };
 }
