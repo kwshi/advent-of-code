@@ -17,7 +17,8 @@ let cmd =
   let open Cmdliner.Cmd in
   group (info "ks-aoc")
     [ group (info "2015") [%generate_days make_group "2015"]
-    ; group (info "2016") [] ]
+    ; group (info "2016") []
+    ; group (info "2023") [%generate_days make_group "2023"] ]
 
 let () =
   let open Cmdliner.Cmd in

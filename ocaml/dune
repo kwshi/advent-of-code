@@ -1,8 +1,9 @@
 (executable
  (public_name ks-aoc)
  (name main)
- (libraries cmdliner containers year2015)
+ (libraries cmdliner containers year2015 year2023)
  (preprocess (pps generate_days))
- (preprocessor_deps (source_tree 2015))
-)
+ (preprocessor_deps
+   (source_tree 2015)
+   (source_tree 2023)))
 
