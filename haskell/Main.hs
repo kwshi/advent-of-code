@@ -8,6 +8,8 @@ import qualified System.IO as IO
 import qualified Year2017.Day01
 import qualified Year2017.Day02
 import qualified Year2017.Day03
+import qualified Year2017.Day04
+import qualified Year2017.Day05
 
 data Args = Args {year :: Int, day :: Int, part :: Part}
 
@@ -37,4 +39,8 @@ main =
     getSolver 2017 2 Part2 = Year2017.Day02.part2
     getSolver 2017 3 Part1 = Year2017.Day03.part1
     getSolver 2017 3 Part2 = Year2017.Day03.part2
+    getSolver 2017 4 Part1 = Year2017.Day04.part1
+    getSolver 2017 4 Part2 = Year2017.Day04.part2
+    getSolver 2017 5 Part1 = Year2017.Day05.part1
+    getSolver 2017 5 Part2 = Year2017.Day05.part2
     getSolver _ _ _ = error "solution not implemented"
