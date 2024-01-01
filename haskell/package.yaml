@@ -4,7 +4,11 @@ version: "0.0.0"
 dependencies:
   - "base"
   - "containers"
+  - "extra"
+  - "template-haskell"
 
 executable:
   main: "Main.hs"
   source-dirs: "."
+  dependencies:
+    - "optparse-applicative"
