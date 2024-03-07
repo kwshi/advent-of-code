@@ -57,14 +57,17 @@
 
       python-full = (python.withPackages pythonLibs).env;
 
+      gleam = pkgs.mkShell {packages = with pkgs; [beamPackages.erlang gleam];};
+
       default = pkgs.mkShell {
         nativeBuildInputs =
           (ocamlCore ocamlPackages)
           ++ [(python.withPackages pythonLibs)];
 
-        buildInputs =
+        packages =
           extraPackages pkgs
-          ++ ocamlLibs ocamlPackages;
+          ++ ocamlLibs ocamlPackages
+          ++ (with pkgs; [gleam]);
       };
     };
   };
