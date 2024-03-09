@@ -126,12 +126,17 @@ class FracMatrix:
         return lower, upper, perm
 
     def solve_lup(self, out: typing.Self):
+        """
+        TODO: deal with non-rectangular matrices? in particular wide, underdetermined systems.
+        """
         if self.nrows != out.nrows:
             raise ValueError(
                 f"solve system size mismatch:"
                 f" coeff nrows={self.nrows}, out nrows={out.nrows}"
             )
         l, u, p = self.factor_lup()
+        if any(not u[i, i] for i in range(self.nrows)):
+            raise ZeroDivisionError(f"matrix is singular")
         out = out.clone().permute_rows(p)
         for i in range(1, self.nrows):
             for j in range(i):
